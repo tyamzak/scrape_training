@@ -1,0 +1,62 @@
+from playwright.sync_api import Playwright, sync_playwright, expect
+
+
+def run(playwright: Playwright) -> None:
+    browser = playwright.chromium.launch(headless=False)
+    context = browser.new_context()
+
+    # Open new page
+    page = context.new_page()
+
+    # Go to https://www.beautiful.ai/
+    page.goto("https://www.beautiful.ai/")
+
+    # Click text=Log In >> nth=1
+    page.locator("text=Log In").nth(1).click()
+    page.wait_for_url("https://www.beautiful.ai/login")
+
+    # Click button:has-text("Sign in with Google")
+    with page.expect_popup() as popup_info:
+        page.locator("button:has-text(\"Sign in with Google\")").click()
+    page1 = popup_info.value
+    page.wait_for_url("https://accounts.google.com/o/oauth2/auth/identifier?redirect_uri=storagerelay%3A%2F%2Fhttps%2Fwww.beautiful.ai%3Fid%3Dauth991979&response_type=permission%20id_token&scope=email%20profile%20openid&openid.realm&include_granted_scopes=true&prompt=select_account&client_id=696419881849-694l606hnkcsqehqulodi1m2i10uklr1.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fwww.beautiful.ai&fetch_basic_profile=true&gsiwebsdk=2&flowName=GeneralOAuthFlow")
+
+    # Click [aria-label="メールアドレスまたは電話番号"]
+    page1.locator("[aria-label=\"メールアドレスまたは電話番号\"]").click()
+
+    # Fill [aria-label="メールアドレスまたは電話番号"]
+    page1.locator("[aria-label=\"メールアドレスまたは電話番号\"]").fill("getagelessgetageless@gmail.com")
+
+    # Press Enter
+    page1.locator("[aria-label=\"メールアドレスまたは電話番号\"]").press("Enter")
+    page1.wait_for_url("https://accounts.google.com/o/oauth2/auth/deniedsigninrejected?redirect_uri=storagerelay%3A%2F%2Fhttps%2Fwww.beautiful.ai%3Fid%3Dauth991979&response_type=permission%20id_token&scope=email%20profile%20openid&openid.realm&include_granted_scopes=true&prompt=select_account&client_id=696419881849-694l606hnkcsqehqulodi1m2i10uklr1.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fwww.beautiful.ai&fetch_basic_profile=true&gsiwebsdk=2&flowName=GeneralOAuthFlow")
+
+    # Click text=このブラウザまたはアプリは安全でない可能性があります。
+    page1.locator("text=このブラウザまたはアプリは安全でない可能性があります。").click()
+
+    # Open new page
+    page2 = context.new_page()
+
+    # Go to https://www.google.com/search?q=%E3%81%93%E3%81%AE%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%BE%E3%81%9F%E3%81%AF%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AF%E5%AE%89%E5%85%A8%E3%81%A7%E3%81%AA%E3%81%84%E5%8F%AF%E8%83%BD%E6%80%A7%E3%81%8C%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99&oq=%E3%81%93%E3%81%AE%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%BE%E3%81%9F%E3%81%AF%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AF%E5%AE%89%E5%85%A8%E3%81%A7%E3%81%AA%E3%81%84%E5%8F%AF%E8%83%BD%E6%80%A7%E3%81%8C%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99&aqs=chrome..69i57.12203j0j1&sourceid=chrome&ie=UTF-8
+    page2.goto("https://www.google.com/search?q=%E3%81%93%E3%81%AE%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%BE%E3%81%9F%E3%81%AF%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AF%E5%AE%89%E5%85%A8%E3%81%A7%E3%81%AA%E3%81%84%E5%8F%AF%E8%83%BD%E6%80%A7%E3%81%8C%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99&oq=%E3%81%93%E3%81%AE%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%BE%E3%81%9F%E3%81%AF%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AF%E5%AE%89%E5%85%A8%E3%81%A7%E3%81%AA%E3%81%84%E5%8F%AF%E8%83%BD%E6%80%A7%E3%81%8C%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99&aqs=chrome..69i57.12203j0j1&sourceid=chrome&ie=UTF-8")
+
+    # Click text=サポートされているブラウザでログインする - パソコンhttps://support.google.com › accounts › answer >> div
+    page2.locator("text=サポートされているブラウザでログインする - パソコンhttps://support.google.com › accounts › answer >> div").click()
+    page2.wait_for_url("https://support.google.com/accounts/answer/7675428?hl=ja&co=GENIE.Platform%3DDesktop")
+
+    # Close page
+    page2.close()
+
+    # Close page
+    page.close()
+
+    # Close page
+    page1.close()
+
+    # ---------------------
+    context.close()
+    browser.close()
+
+
+with sync_playwright() as playwright:
+    run(playwright)
